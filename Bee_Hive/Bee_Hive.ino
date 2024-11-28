@@ -17,8 +17,8 @@
 
 // Pin definitions
 #define ONE_WIRE_BUS 4    // DS18B20 data pin (GPIO4, D2)
-#define RELAY_PELTIER 12  // Relay for Fan (GPIO12, D6)
-#define RELAY_FAN 13      // Realy for Peltier (GPIO13, D7)
+#define RELAY_PELTIER 3  // Relay for Fan (GPIO3, RX)
+#define RELAY_FAN 1      // Realy for Peltier (GPIO1, TX)
 
 // Thresold temperature
 #define TEMP_HIGH_THRESOLD 29.0  // Temperature to turn on Peltier and Fan
@@ -54,8 +54,8 @@ float Temperature;
 // Timing variables
 unsigned long tempCheckPreviousMillis = 0;
 unsigned long sendDataPreviousMillis = 0;
-const unsigned long tempCheckInterval = 10000;  // 10 seconds
-const unsigned long sendDataInterval = 900000;  // 15 minutes (900,000 ms)
+const unsigned long tempCheckInterval = 5000;//10000;  // 10 seconds
+const unsigned long sendDataInterval = 5000;//900000;  // 15 minutes (900,000 ms)
 
 
 // Flags
@@ -122,20 +122,18 @@ void setup_Tem_sensor() {
 
 void sendReadings() {
   if (LoRa_status == "Initialized") {
-    LoRaMessage = String(Headcode) + "/" + String(readingID) + "$"  + "#" + Temperature_sensor1_status + "&" + Temperature_sensor2_status + "%" + Peltier_status + "=" + Fan_status;
-    if (!LoRa.beginPacket()){
-      Serial.println("Failed to send LoRa");
-    } else{
+    LoRaMessage = String(Headcode) + "/" + String(readingID) + "$"  + "#" + String(Temperature_sensor1_status) + "&" + String(Temperature_sensor2_status) + "%" + String(Peltier_status) + "=" + String(Fan_status);
       LoRa.beginPacket();
-      LoRa.print("hi");
+      LoRa.print(LoRaMessage);
       LoRa.endPacket();
       Serial.println(LoRaMessage);
       readingID++;
-    }
+    
   } else {
     LoRa_Skip_Message++;
     Serial.println("Skip sending LoRa.");
   }
+
 }
 
 
@@ -216,17 +214,20 @@ void debugStatus() {
 
 void setup() {
   Serial.begin(115200);
+  
   startLoRa();  // Start LoRa
 
   setup_Tem_sensor();  // Temperature sensor setup
 
-  // Initialize relay pins
-  pinMode(RELAY_PELTIER, OUTPUT);
-  pinMode(RELAY_FAN, OUTPUT);
+  //Initialize relay pins
+  //pinMode(RELAY_PELTIER, OUTPUT);
+ // pinMode(RELAY_FAN, OUTPUT);
 
   // Ensure relays are off at startup
-  digitalWrite(RELAY_PELTIER, LOW);
-  digitalWrite(RELAY_FAN, LOW);
+ // digitalWrite(RELAY_PELTIER, LOW);
+ // digitalWrite(RELAY_FAN, LOW);
+
+
   
 
 
@@ -241,6 +242,8 @@ void setup() {
 
 void loop() {
    unsigned long currentMillis = millis();
+  //  delay(5000);
+  //  sendReadings();
   
   // delay(2000);
   // getTemp();

@@ -62,7 +62,7 @@ void loop() {
   LoRa.beginPacket();
   LoRa.print("hello ");
   LoRa.print(counter);
-  LoRa.endPacket();
+  LoRa.endPacket(true);
 
   counter++;
 
