@@ -14,7 +14,7 @@ String LoRa_status = "Not Initialized";
 
 void startLoRa() {
   
-  LoRa.setPins(SS,RST,DIO0;)
+  LoRa.setPins(SS,RST,DIO0);
   while (!LoRa.begin(BAND) && counter < 10) {
     Serial.print(".");
     counter++;

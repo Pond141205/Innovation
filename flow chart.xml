@@ -1,0 +1,60 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="ESP8266 System Flowchart" id="SystemFlowchart">
+    <mxGraphModel dx="760" dy="500" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Start Block -->
+        <mxCell id="start" value="Start" style="ellipse;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;fillColor=#DAF7A6;" vertex="1" parent="1">
+          <mxGeometry x="150" y="30" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Setup Block -->
+        <mxCell id="setup" value="Setup Serial, LoRa, DS18B20 Sensors, GPIO Pins" style="rounded=1;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;fillColor=#FFC300;" vertex="1" parent="1">
+          <mxGeometry x="100" y="120" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="setupEdge" edge="1" source="start" target="setup" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Main Loop Decision -->
+        <mxCell id="mainLoop" value="Loop: Test Mode?" style="rhombus;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;fillColor=#FF5733;" vertex="1" parent="1">
+          <mxGeometry x="100" y="230" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="loopEdge" edge="1" source="setup" target="mainLoop" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Test Mode Branch -->
+        <mxCell id="testMode" value="Test Mode: Process Serial Commands" style="rounded=1;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;fillColor=#FFC300;" vertex="1" parent="1">
+          <mxGeometry x="20" y="350" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="testModeEdge" edge="1" source="mainLoop" target="testMode" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+          <mxPoint as="sourcePoint" x="10" y="10" />
+          <mxPoint as="targetPoint" x="20" y="350" />
+        </mxCell>
+
+        <!-- Normal Operation Branch -->
+        <mxCell id="normalOp" value="Normal Operation: Check Temp & Send Data" style="rounded=1;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;fillColor=#FFC300;" vertex="1" parent="1">
+          <mxGeometry x="300" y="350" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="normalOpEdge" edge="1" source="mainLoop" target="normalOp" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- End Block -->
+        <mxCell id="end" value="End" style="ellipse;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;fillColor=#DAF7A6;" vertex="1" parent="1">
+          <mxGeometry x="200" y="500" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="endEdge" edge="1" source="testMode" target="end" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="endEdge2" edge="1" source="normalOp" target="end" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

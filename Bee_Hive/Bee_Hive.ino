@@ -9,19 +9,20 @@
 #include <SPI.h>
 #include <LoRa.h>
 #define BAND 920E6
-#define SS 15 // chip select pin
-#define RST 5 // Reset pin
-#define DIO0 4 // Interrupt pin 
+#define SS 15   // chip select pin
+#define RST 5   // Reset pin
+#define DIO0 4  // Interrupt pin
+
 
 
 // Pin definitions
-#define ONE_WIRE_BUS 4 // DS18B20 data pin (GPIO4, D2)
-#define RELAY_PELTIER 13 // Relay for Fan (GPIO12, D6)
-#define RELAY_FAN 12 // Realy for Peltier (GPIO13, D7)
+#define ONE_WIRE_BUS 4    // DS18B20 data pin (GPIO4, D2)
+#define RELAY_PELTIER 12  // Relay for Fan (GPIO12, D6)
+#define RELAY_FAN 13      // Realy for Peltier (GPIO13, D7)
 
 // Thresold temperature
-#define TEMP_HIGH_THRESOLD 29.0 // Temperature to turn on Peltier and Fan
-#define TEMP_LOW_THRESOLD 25.0 // Temperature to turn on Peltier and Fan
+#define TEMP_HIGH_THRESOLD 29.0  // Temperature to turn on Peltier and Fan
+#define TEMP_LOW_THRESOLD 25.0   // Temperature to turn on Peltier and Fan
 
 
 
@@ -45,32 +46,32 @@ int LoRa_Skip_Message = 0;
 int readingID = 0;
 int counter = 0;
 String LoRaMessage = "";
-const String Headcode = ""; /////////// dont for got to put headcode
+const String Headcode = "Hive";  /////////// dont for got to put headcode
 
 // Temperature Data
-float Temperature ;
+float Temperature;
 
 // Timing variables
 unsigned long tempCheckPreviousMillis = 0;
 unsigned long sendDataPreviousMillis = 0;
-const unsigned long tempCheckInterval = 10000; // 10 seconds
-const unsigned long sendDataInterval = 900000; // 15 minutes (900,000 ms)
+const unsigned long tempCheckInterval = 10000;  // 10 seconds
+const unsigned long sendDataInterval = 900000;  // 15 minutes (900,000 ms)
 
 
 // Flags
 bool tempThresholdExceeded = false;
-bool testMode = false; // Test mode Flag
+bool testMode = false;  // Test mode Flag
 
 
 
 void startLoRa() {
-  LoRa.setPins(SS,RST,DIO0);
+  LoRa.setPins(SS, RST, DIO0);
   while (!LoRa.begin(BAND) && counter < 10) {
     Serial.print(".");
     counter++;
     delay(500);
   }
-  if (counter == 10){
+  if (counter == 10) {
     // Increment readingID on every new reading
     readingID++;
     Serial.println("LoRa Initialization Failed!");
@@ -82,13 +83,13 @@ void startLoRa() {
   delay(500);
 
   // Set LoRa module parameters
-  LoRa.setTxPower(14); // Set transmission power (dBm)
-  LoRa.setSpreadingFactor(7); // Set spreading factor 
-  LoRa.setSignalBandwidth(500E3); // Set bandwidth
-  LoRa.setCodingRate4(5); // Set coding rate
-  LoRa.setPreambleLength(8); // Set preamble length
+  LoRa.setTxPower(14);             // Set transmission power (dBm)
+  LoRa.setSpreadingFactor(7);      // Set spreading factor
+  LoRa.setSignalBandwidth(500E3);  // Set bandwidth
+  LoRa.setCodingRate4(5);          // Set coding rate
+  LoRa.setPreambleLength(8);       // Set preamble length
 
- delay(2000);
+  delay(2000);
 }
 
 
@@ -115,24 +116,25 @@ void setup_Tem_sensor() {
 
   // Set resolution to 9-bit, 10-bit, 11-bit, or 12-bit (higher is more accurate but slower)
   sensors.setResolution(sensor1, 12);
-  sensors.setResolution(sensor2, 12);  
+  sensors.setResolution(sensor2, 12);
 }
 
 
-void sendReadings(String warning = "") {
+void sendReadings() {
   if (LoRa_status == "Initialized") {
-    LoRaMessage = String(Headcode) + "/" + String(readingID) + "$" + String(Temperature) + "#" + Temperature_sensor1_status + "&" +
-                  Temperature_sensor2_status + "%" + Peltier_status + "=" + Fan_status;
-    if (warning != "") {
-      LoRaMessage += " WARNING: " + warning;
+    LoRaMessage = String(Headcode) + "/" + String(readingID) + "$"  + "#" + Temperature_sensor1_status + "&" + Temperature_sensor2_status + "%" + Peltier_status + "=" + Fan_status;
+    if (!LoRa.beginPacket()){
+      Serial.println("Failed to send LoRa");
+    } else{
+      LoRa.beginPacket();
+      LoRa.print("hi");
+      LoRa.endPacket();
+      Serial.println(LoRaMessage);
+      readingID++;
     }
-    // LoRa.beginPacket();
-    // LoRa.print(LoRaMessage);
-    // LoRa.endPacket();
-    Serial.println(LoRaMessage);
-    readingID++;
   } else {
-    LoRa_Skip_Message += 1;
+    LoRa_Skip_Message++;
+    Serial.println("Skip sending LoRa.");
   }
 }
 
@@ -148,8 +150,8 @@ void getTemp() {
   float temp1 = sensors.getTempC(sensor1);
   float temp2 = sensors.getTempC(sensor2);
 
- 
-  if (temp1 == DEVICE_DISCONNECTED_C && temp2 != DEVICE_DISCONNECTED_C)  {
+
+  if (temp1 == DEVICE_DISCONNECTED_C && temp2 != DEVICE_DISCONNECTED_C) {
     Temperature_sensor1_status = "Disconnected";
     Temperature_sensor2_status = "Active";
     Temperature = temp2;
@@ -161,13 +163,13 @@ void getTemp() {
     Temperature_sensor1_status = "Disconnnected";
     Temperature_sensor2_status = "Disconneected";
     Temperature = -999;
-  } else {
+  } else if (temp1 != DEVICE_DISCONNECTED_C && temp2 != DEVICE_DISCONNECTED_C) {
     Temperature_sensor1_status = "Active";
     Temperature_sensor2_status = "Active";
-    Temperature = (temp1 + temp2)/2;
+    Temperature = (temp1 + temp2) / 2;
   }
+  //Temperature = (temp1 + temp2) / 2;
   Serial.println("Temp: " + String(Temperature));
-
 }
 
 
@@ -178,18 +180,18 @@ void Temp_control() {
     digitalWrite(RELAY_FAN, HIGH);      // Turn on Fan
     Peltier_status = "ON";
     Fan_status = "ON";
-    
+
     // Send an immediate alert only once when the threshold is exceeded
     if (!tempThresholdExceeded) {
       tempThresholdExceeded = true;
-      sendReadings("High Temperature!"); // Immediate alert
+      sendReadings();  // Immediate alert
     }
   } else if (Temperature <= TEMP_LOW_THRESOLD) {
-    digitalWrite(RELAY_PELTIER, LOW);   // Turn off Peltier
-    digitalWrite(RELAY_FAN, LOW);       // Turn off Fan
+    digitalWrite(RELAY_PELTIER, LOW);  // Turn off Peltier
+    digitalWrite(RELAY_FAN, LOW);      // Turn off Fan
     Peltier_status = "OFF";
     Fan_status = "OFF";
-    
+
     // Reset the flag to allow for a new alert if threshold is exceeded again
     tempThresholdExceeded = false;
   }
@@ -214,9 +216,9 @@ void debugStatus() {
 
 void setup() {
   Serial.begin(115200);
-  startLoRa(); // Start LoRa
-  
-  setup_Tem_sensor(); // Temperature sensor setup
+  startLoRa();  // Start LoRa
+
+  setup_Tem_sensor();  // Temperature sensor setup
 
   // Initialize relay pins
   pinMode(RELAY_PELTIER, OUTPUT);
@@ -225,48 +227,63 @@ void setup() {
   // Ensure relays are off at startup
   digitalWrite(RELAY_PELTIER, LOW);
   digitalWrite(RELAY_FAN, LOW);
+  
 
-  getTemp();
-  Temp_control();
-  sendReadings();
-  delay(2000);
 
+  // getTemp();
+  // Temp_control();
+  // sendReadings();
+  Serial.println("Setup complete.");
+  // delay(2000);
 }
 
-void loop() {
-  unsigned long currentMillis = millis();
 
-  // Handle test mode
-  if (testMode) {
+
+void loop() {
+   unsigned long currentMillis = millis();
+  
+  // delay(2000);
+  // getTemp();
+  // Temp_control();
+
+
+    if (testMode) {
     // Wait for commands in test mode
     if (Serial.available()) {
-      String input = Serial.readStringUntil('\n');
-      input.trim(); // Remove leading and trailing whitespace
+        String input = Serial.readStringUntil('\n');
+        input.trim(); // Remove leading and trailing whitespace
 
-      if (input.equalsIgnoreCase("fan on")) {
-        digitalWrite(RELAY_FAN, HIGH); // Turn on Fan (active LOW)
-        Serial.println("Fan turned ON");
-      } else if (input.equalsIgnoreCase("fan off")) {
-        digitalWrite(RELAY_FAN, LOW); // Turn off Fan (active LOW)
-        Serial.println("Fan turned OFF");
-      } else if (input.equalsIgnoreCase("peltier on")) {
-        digitalWrite(RELAY_PELTIER, HIGH); // Turn on Peltier (active LOW)
-        Serial.println("Peltier turned ON");
-      } else if (input.equalsIgnoreCase("peltier off")) {
-        digitalWrite(RELAY_PELTIER, LOW); // Turn off Peltier (active LOW)
-        Serial.println("Peltier turned OFF");
-      } else if (input.equalsIgnoreCase("exit")) {
-        testMode = false; // Exit test mode
-        Serial.println("Exiting Test Mode.");
-        // Ensure relays are off after exiting
-        digitalWrite(RELAY_FAN, LOW);
-        digitalWrite(RELAY_PELTIER, LOW);
-      } else {
-        Serial.println("Unknown command. Use 'fan on', 'fan off', 'peltier on', 'peltier off', or 'exit'.");
-      }
+        if (input.equalsIgnoreCase("fan on")) {
+            digitalWrite(RELAY_FAN, HIGH); // Turn on Fan
+            Serial.println("Fan turned ON");
+        } else if (input.equalsIgnoreCase("fan off")) {
+            digitalWrite(RELAY_FAN, LOW); // Turn off Fan
+            Serial.println("Fan turned OFF");
+        } else if (input.equalsIgnoreCase("peltier on")) {
+            digitalWrite(RELAY_PELTIER, HIGH); // Turn on Peltier
+            Serial.println("Peltier turned ON");
+        } else if (input.equalsIgnoreCase("peltier off")) {
+            digitalWrite(RELAY_PELTIER, LOW); // Turn off Peltier
+            Serial.println("Peltier turned OFF");
+        } else if (input.equalsIgnoreCase("send lora")) {
+            if (LoRa_status == "Initialized") {
+                sendReadings();
+            } else {
+                Serial.println("LoRa is not initialized. Unable to send test message.");
+            }
+        } else if (input.equalsIgnoreCase("exit")) {
+            testMode = false; // Exit test mode
+            Serial.println("Exiting Test Mode.");
+            // Ensure relays are off after exiting
+            digitalWrite(RELAY_FAN, LOW);
+            digitalWrite(RELAY_PELTIER, LOW);
+        } else {
+            Serial.println("Unknown command. Use 'fan on', 'fan off', 'peltier on', 'peltier off', 'send lora', or 'exit'.");
+        }
     }
     return; // Exit loop early to prevent other logic from running
-  }
+ }
+
 
   // Normal operation logic
   if (currentMillis - tempCheckPreviousMillis >= tempCheckInterval) {
@@ -274,6 +291,7 @@ void loop() {
     getTemp();          // Get the temperature reading
     Temp_control();     // Adjust relays based on temperature
   }
+
 
   if (currentMillis - sendDataPreviousMillis >= sendDataInterval) {
     sendDataPreviousMillis = currentMillis;
@@ -288,6 +306,9 @@ void loop() {
     if (input.equalsIgnoreCase("test mode")) {
       testMode = true; // Enter test mode
       Serial.println("Entering Test Mode. Type 'exit' to leave.");
+    } else if (input.equalsIgnoreCase("status")) {
+      debugStatus();
     }
   }
 }
+
