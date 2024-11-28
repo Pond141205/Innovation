@@ -1,4 +1,5 @@
 // Pin set for esp8266 board
+// Warning when upload code take D4(peltier pin) off first
 
 
 
