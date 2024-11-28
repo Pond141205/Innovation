@@ -17,11 +17,11 @@
 
 // Pin definitions
 #define ONE_WIRE_BUS 4    // DS18B20 data pin (GPIO4, D2)
-#define RELAY_PELTIER 3  // Relay for Fan (GPIO3, RX)
-#define RELAY_FAN 1      // Realy for Peltier (GPIO1, TX)
+#define RELAY_PELTIER 2  // Relay for Fan (GPIO2,D4 )
+#define RELAY_FAN   5    // Realy for Peltier (GPIO5, D1)
 
 // Thresold temperature
-#define TEMP_HIGH_THRESOLD 29.0  // Temperature to turn on Peltier and Fan
+#define TEMP_HIGH_THRESOLD 32.0  // Temperature to turn on Peltier and Fan
 #define TEMP_LOW_THRESOLD 25.0   // Temperature to turn on Peltier and Fan
 
 
@@ -220,12 +220,12 @@ void setup() {
   setup_Tem_sensor();  // Temperature sensor setup
 
   //Initialize relay pins
-  //pinMode(RELAY_PELTIER, OUTPUT);
- // pinMode(RELAY_FAN, OUTPUT);
+  pinMode(RELAY_PELTIER, OUTPUT);
+  pinMode(RELAY_FAN, OUTPUT);
 
-  // Ensure relays are off at startup
- // digitalWrite(RELAY_PELTIER, LOW);
- // digitalWrite(RELAY_FAN, LOW);
+  //Ensure relays are off at startup
+  digitalWrite(RELAY_PELTIER, LOW);
+  digitalWrite(RELAY_FAN, LOW);
 
 
   
