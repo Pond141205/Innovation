@@ -18,8 +18,8 @@
 
 // Pin definitions
 #define ONE_WIRE_BUS 4    // DS18B20 data pin (GPIO4, D2)
-#define RELAY_PELTIER 2  // Relay for Fan (GPIO2,D4 )
-#define RELAY_FAN   5    // Realy for Peltier (GPIO5, D1)
+#define RELAY_PELTIER 5  // Relay for Fan (GPIO5,D1)
+#define RELAY_FAN   0    // Realy for Peltier (GPI0, D3) FIX
 
 // Thresold temperature
 #define TEMP_HIGH_THRESOLD 32.0  // Temperature to turn on Peltier and Fan
@@ -123,7 +123,7 @@ void setup_Tem_sensor() {
 
 void sendReadings() {
   if (LoRa_status == "Initialized") {
-    LoRaMessage = String(Headcode) + "/" + String(readingID) + "$"  + "#" + String(Temperature_sensor1_status) + "&" + String(Temperature_sensor2_status) + "%" + String(Peltier_status) + "=" + String(Fan_status);
+    LoRaMessage = String(Headcode) + "/" + String(readingID) + "$" + String(Temperature) + "#" + String(Temperature_sensor1_status) + "&" + String(Temperature_sensor2_status) + "%" + String(Peltier_status) + "=" + String(Fan_status);
       LoRa.beginPacket();
       LoRa.print(LoRaMessage);
       LoRa.endPacket();
